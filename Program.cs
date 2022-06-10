@@ -22,10 +22,8 @@ namespace HighCPUUsage
                 Thread thread1 = new(new ThreadStart(ThreadFunction));
                 thread1.Start();
             }
-            Console.Write("Number of threads: ", threadCount);
-#pragma warning disable CA1416 // Validate platform compatibility
+            Console.Write("Number of threads: {0}", threadCount);
             SelectQuery cpuQuery = new(QueryOrClassName);
-#pragma warning restore CA1416 // Validate platform compatibility
             Console.Write("Cpu usage: ");
             int x = Console.CursorLeft;
             int y = Console.CursorTop;
