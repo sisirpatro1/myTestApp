@@ -29,7 +29,8 @@ namespace HighCPUUsage
             int y = Console.CursorTop;
             while (true)
             {
-                ManagementObjectSearcher mgmtObjSrchr = new ManagementObjectSearcher(cpuQuery);
+                ManagementObjectSearcher managementObjectSearcher = new(cpuQuery);
+                ManagementObjectSearcher mgmtObjSrchr = managementObjectSearcher;
                 foreach (ManagementObject cpuLoad in mgmtObjSrchr.Get())
                 {
                     string cpuPercent = cpuLoad.GetPropertyValue("LoadPercentage").ToString();
