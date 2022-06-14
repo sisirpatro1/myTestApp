@@ -28,9 +28,8 @@ namespace HighCPUUsage
     }
     class Program
     {
-        static int ALLOCATIONS = 1000;
-        static int ALLOCATION_SIZE = 1638;
-        static int FACTORIAL_OF = 100;
+        static readonly int ALLOCATIONS = 1000;
+        static readonly int ALLOCATION_SIZE = 1638;
 
         static void Main(string[] args)
         {
@@ -42,11 +41,11 @@ namespace HighCPUUsage
         {
             List<Thread> threads = new List<Thread>();
             List<Worker> workers = new List<Worker>();
-            int n = Environment.ProcessorCount;
+            int n = 1500;// Environment.ProcessorCount;
 
             for (int i = 0; i < n; i++)
             {
-                Console.WriteLine("Entered into {0} loop and the memory allocated as {1}", i, ALLOCATION_SIZE);
+                Console.WriteLine("Entered into {0} loop out of {2} loops and the memory allocated as {1}", i, ALLOCATION_SIZE, n);
                 Worker worker = new Worker(AllocationTest);
                 Thread thread = new Thread(worker.DoWork);
                 workers.Add(worker);
@@ -68,7 +67,7 @@ namespace HighCPUUsage
         {
             // Console.WriteLine(AppDomain.CurrentDomain.FriendlyName);
             object[] objects = new object[ALLOCATIONS];
-
+            //Console.WriteLine("Entered into the allocationTest module.");
             for (int i = 0; i < ALLOCATIONS; i++)
             {
                 objects[i] = new byte[ALLOCATION_SIZE];
