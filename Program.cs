@@ -4,48 +4,73 @@ using System.Diagnostics;
 using System.Management;
 namespace HighCPUUsage
 {
+    public class Worker
+    {
+        protected volatile bool shouldStop;
+        protected Action action;
+        public Worker(Action doSomething)
+        {
+            action = doSomething;
+        }
+
+        public void DoWork()
+        {
+            while (!shouldStop)
+            {
+                action();
+            }
+        }
+
+        public void RequestStop()
+        {
+            shouldStop = true;
+        }
+    }
     class Program
     {
-        private const string QueryOrClassName = "SELECT LoadPercentage FROM Win32_Processor";
+        static int ALLOCATIONS = 10000;
+        static int ALLOCATION_SIZE = 16384;
+        static int FACTORIAL_OF = 100;
 
         static void Main(string[] args)
         {
-            Debugger.NotifyOfCrossThreadDependency(); // for debugging
-            int threadCount = Environment.ProcessorCount;
-            Console.WriteLine("High CPU Usage application.Press ctrl / c for interrupt!");
-            if (args.Length >= 1)
-            {
-                threadCount = Int32.Parse(args[0]);
-            }
-            for (int ii = 0; ii < threadCount; ii++)
-            {
-                Thread thread1 = new(new ThreadStart(ThreadFunction));
-                thread1.Start();
-            }
-            Console.Write("Number of threads: {0}", threadCount);
-            SelectQuery cpuQuery = new(QueryOrClassName);
-            Console.Write("Cpu usage: ");
-            int x = Console.CursorLeft;
-            int y = Console.CursorTop;
-            while (true)
-            {
-                ManagementObjectSearcher managementObjectSearcher = new(cpuQuery);
-                ManagementObjectSearcher mgmtObjSrchr = managementObjectSearcher;
-                foreach (ManagementObject cpuLoad in mgmtObjSrchr.Get())
-                {
-                    string cpuPercent = cpuLoad.GetPropertyValue("LoadPercentage").ToString();
-                    Console.CursorLeft = x;
-                    Console.CursorTop = y;
-                    Console.Write("{0}%", cpuPercent);
-                }
-                Thread.Sleep(1000);
+            ThreadTest();
+        }
+        //static int FACTORIAL_OF = 100;
 
-            }
-            static void ThreadFunction()
+        static void ThreadTest()
+        {
+            List<Thread> threads = new List<Thread>();
+            List<Worker> workers = new List<Worker>();
+            int n = Environment.ProcessorCount;
+
+            for (int i = 0; i < n; i++)
             {
-                while (true)
-                {
-                }
+                Worker worker = new Worker(AllocationTest);
+                Thread thread = new Thread(worker.DoWork);
+                workers.Add(worker);
+                threads.Add(thread);
+            }
+
+            threads.ForEach(t => t.Start());
+
+            Console.WriteLine("Press ENTER key to stop...");
+            Console.ReadLine();
+
+            workers.ForEach(w => w.RequestStop());
+            threads.ForEach(t => t.Join());
+
+            Console.WriteLine("Done");
+        }
+
+        static void AllocationTest()
+        {
+            // Console.WriteLine(AppDomain.CurrentDomain.FriendlyName);
+            object[] objects = new object[ALLOCATIONS];
+
+            for (int i = 0; i < ALLOCATIONS; i++)
+            {
+                objects[i] = new byte[ALLOCATION_SIZE];
             }
         }
     }
