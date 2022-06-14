@@ -28,8 +28,8 @@ namespace HighCPUUsage
     }
     class Program
     {
-        static int ALLOCATIONS = 10000;
-        static int ALLOCATION_SIZE = 16384;
+        static int ALLOCATIONS = 1000;
+        static int ALLOCATION_SIZE = 1638;
         static int FACTORIAL_OF = 100;
 
         static void Main(string[] args)
@@ -46,6 +46,7 @@ namespace HighCPUUsage
 
             for (int i = 0; i < n; i++)
             {
+                Console.WriteLine("Entered into {0} loop and the memory allocated as {1}", i, ALLOCATION_SIZE);
                 Worker worker = new Worker(AllocationTest);
                 Thread thread = new Thread(worker.DoWork);
                 workers.Add(worker);
